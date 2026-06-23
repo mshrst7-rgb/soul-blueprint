@@ -535,7 +535,16 @@ ${sameLock ? '（錠前と鍵の数字が同じであることに言及し、外
     });
 
     const data = await res.json();
-    const raw = data.content?.map(i => i.text || '').join('');
+
+    // APIエラーチェック
+    if (data.error) {
+      throw new Error('APIエラー: ' + data.error.message);
+    }
+
+    const raw = (data.content || []).map(i => i.text || '').join('');
+    if (!raw) {
+      throw new Error('レスポンスが空です。(' + JSON.stringify(data).slice(0, 200) + ')');
+    }
     const clean = raw.replace(/```json|```/g, '').trim();
 
     let chapters = [];
