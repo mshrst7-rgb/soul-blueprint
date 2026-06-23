@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>魂の設計図</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400&display=swap');
+
+  :root {
+    --bg: #0e0e12;
+    --surface: #16161d;
+    --border: #2a2a36;
+    --accent: #c8a96e;
+    --accent-dim: rgba(200,169,110,0.15);
+    --text: #e8e6e0;
+    --text-muted: #888;
+    --text-dim: #555;
+    --radius: 4px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 60px 24px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--text);
+  }
+
+  header p {
+    margin-top: 12px;
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* Form */
+  .form-section {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus {
+    border-color: var(--accent);
+  }
+
+  .field input::placeholder {
+    color: var(--text-dim);
+  }
+
+  .field .hint {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .generate-btn {
+    margin-top: 32px;
+    width: 100%;
+    background: var(--accent);
+    color: #0e0e12;
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .generate-btn:hover { opacity: 0.85; }
+  .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Numbers display */
+  .numbers-section {
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border);
+    display: none;
+  }
+
+  .numbers-section .section-label {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .number-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .number-card .n-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .number-card .n-value {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  /* Result */
+  .result-section {
+    padding: 48px 0;
+    display: none;
+  }
+
+  .result-section .section-label {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .chapter {
+    margin-bottom: 40px;
+  }
+
+  .chapter-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chapter-num {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+  }
+
+  .chapter-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: 0.1em;
+  }
+
+  .chapter-body {
+    font-size: 14px;
+    line-height: 2.0;
+    color: #ccc;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 60px 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    display: none;
+  }
+
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.5s steps(4, end) infinite;
+  }
+
+  @keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '・'; }
+    60% { content: '・・'; }
+    80%, 100% { content: '・・・'; }
+  }
+
+  .error-msg {
+    background: rgba(200,80,80,0.1);
+    border: 1px solid rgba(200,80,80,0.3);
+    border-radius: var(--radius);
+    padding: 16px;
+    color: #e88;
+    font-size: 13px;
+    margin-top: 16px;
+    display: none;
+  }
+
+  .copy-btn {
+    margin-top: 32px;
+    width: 100%;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .copy-btn:hover { background: var(--accent-dim); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Numerology</div>
+  <h1>魂の設計図</h1>
+  <p>生年月日と名前から、前世の記憶と今世の使命を紐解きます</p>
+</header>
+
+<div class="container">
+
+  <div class="form-section">
+    <div class="form-grid">
+      <div class="row-2">
+        <div class="field">
+          <label>生年月日</label>
+          <input type="date" id="birthdate" min="1900-01-01" max="2099-12-31">
+        </div>
+        <div class="field">
+          <label>ファーストネーム（ローマ字）</label>
+          <input type="text" id="firstname" placeholder="例：MASAHIRO">
+          <div class="hint">下の名前をアルファベットで</div>
+        </div>
+      </div>
+    </div>
+    <button class="generate-btn" id="generateBtn" onclick="generate()">魂の設計図を生成する</button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <div class="numbers-section" id="numbersSection">
+    <div class="section-label">算出された数字</div>
+    <div class="numbers-grid">
+      <div class="number-card">
+        <div class="n-label">LP</div>
+        <div class="n-value" id="numLP">—</div>
+      </div>
+      <div class="number-card">
+        <div class="n-label">MN</div>
+        <div class="n-value" id="numMN">—</div>
+      </div>
+      <div class="number-card">
+        <div class="n-label">CN</div>
+        <div class="n-value" id="numCN">—</div>
+      </div>
+      <div class="number-card">
+        <div class="n-label">BD</div>
+        <div class="n-value" id="numBD">—</div>
+      </div>
+      <div class="number-card">
+        <div class="n-label">FN</div>
+        <div class="n-value" id="numFN">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <span class="loading-dots">魂の記録を読み解いています</span>
+  </div>
+
+  <div class="result-section" id="resultSection">
+    <div class="section-label">あなたの魂の設計図</div>
+    <div id="chapters"></div>
+    <button class="copy-btn" onclick="copyResult()">テキストをコピーする</button>
+  </div>
+
+</div>
+
+<script>
+// ===== 数値計算 =====
+
+function reduceNum(n, keepMaster=true) {
+  while (n > 9) {
+    if (keepMaster && (n === 11 || n === 22 || n === 33)) break;
+    n = String(n).split('').reduce((a,b) => a + parseInt(b), 0);
+  }
+  return n;
+}
+
+function calcLP(y, m, d) {
+  const total = [...String(y), ...String(m), ...String(d)].reduce((a,b) => a + parseInt(b), 0);
+  return reduceNum(total);
+}
+
+function calcMN(m) { return reduceNum(m); }
+
+function calcCN(d, m) {
+  const bd = reduceNum(d);
+  const mn = reduceNum(m);
+  return Math.abs(bd - mn);
+}
+
+function calcBD(d) { return reduceNum(d); }
+
+const PYTHAGOREAN = {
+  A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,
+  J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,
+  S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8
+};
+
+function calcFN(name) {
+  const total = name.toUpperCase().split('').reduce((a,c) => a + (PYTHAGOREAN[c] || 0), 0);
+  return reduceNum(total);
+}
+
+// ===== パーツリスト =====
+
+const MN_DATA = {
+  1: '自立心と開拓精神が求められる、厳しくも自由な環境',
+  2: '感受性が尊ばれ、調和や目に見えない絆を重んじる環境',
+  3: '表現や楽しさが溢れ、常に変化と刺激がある賑やかな環境',
+  4: '伝統や規律が厳格で、堅実な基盤作りを求められる環境',
+  5: '束縛がなく、常に旅や冒険、新しい知識に触れる流動的な環境',
+  6: '家族や集団への献身と、深い愛による奉仕が中心の環境',
+  7: '静寂の中で真理を追究し、知性を磨き続けるストイックな環境',
+  8: '権威や豊かさを循環させ、大きな組織を動かすダイナミックな環境',
+  9: '全てを受け入れ、慈悲の心で人々を導く達観した環境',
+  11: '感受性が尊ばれ、調和や目に見えない絆を重んじる環境',
+};
+
+const CN_DATA = {
+  0: '決まった課題はなく、あらゆる可能性に挑戦する自由な設定',
+  1: '「個」としての自立。依存を断ち切り、独り立ちすることへの恐れ',
+  2: '人間関係のしがらみ。過度な遠慮や、自分の意見を言えない繊細さ',
+  3: '自己表現へのブロック。楽しむことへの罪悪感や、真面目すぎる性質',
+  4: '変化への抵抗。形のないものを恐れ、安定に固執しすぎる傾向',
+  5: '自由への不慣れさ。枠を飛び出す勇気と、自分を信じることの難しさ',
+  6: '愛の押し付け。境界線が引けず、過干渉や自己犠牲に陥る課題',
+  7: '心を閉ざす癖。他人を疑い、自分の殻にこもってしまう孤独感',
+  8: '豊かさへの拒絶。パワーを持つことへの恐怖や、成功へのブレーキ',
+  9: '手放しの難しさ。過去や感情に執着し、次へ進めない未練',
+};
+
+const BD_DATA = {
+  1: 'リーダー気質で決断力があるが、独りよがりになりやすい檻',
+  2: '癒やし系で聞き上手だが、相手に合わせすぎて自分を見失う檻',
+  3: '明るくムードメーカーだが、飽きっぽく責任から逃げがちな檻',
+  4: '真面目で信頼されるが、頑固で融通が利かない安定の檻',
+  5: '多才で行動力があるが、落ち着きがなく器用貧乏になる檻',
+  6: '面倒見が良く慈愛深いが、お節介で自分を削ってしまう檻',
+  7: 'クールで分析的だが、理屈っぽく近寄りがたい孤独の檻',
+  8: '情熱的でパワフルだが、結果に固執し支配的になる檻',
+  9: '包容力があり平和主義だが、本音が掴めず現実味に欠ける檻',
+  11: '癒やし系で聞き上手だが、相手に合わせすぎて自分を見失う檻',
+  22: '真面目で信頼されるが、頑固で融通が利かない安定の檻',
+  33: '面倒見が良く慈愛深いが、お節介で自分を削ってしまう檻',
+};
+
+const FN_DATA = {
+  1: { weapon: '開拓の力', desc: '誰の真似でもない、自らの意志で道を切り拓く「開拓の力」' },
+  2: { weapon: '受容と結びの力', desc: '相手と深く共鳴し、調和を生み出す「受容と結びの力」' },
+  3: { weapon: '創造的表現力', desc: 'どんな状況も笑いに変え、可能性を広げる「創造的表現力」' },
+  4: { weapon: '着実な構築力', desc: 'カオスの中に秩序を作り、形にしていく「着実な構築力」' },
+  5: { weapon: '変革の力', desc: '壁を壊し、自由を求めて軽やかに飛び越えていく「変革の力」' },
+  6: { weapon: '献身的な慈愛', desc: '周囲を包み込み、調和と美しさを育む「献身的な慈愛」' },
+  7: { weapon: '探求の知性', desc: '物事の本質を見抜き、独自の哲学を確立する「探求の知性」' },
+  8: { weapon: '具現化の力', desc: '情熱をエネルギーに変え、社会を豊かに循環させる「具現化の力」' },
+  9: { weapon: '共感と手放しの智慧', desc: '全てを許し、次の次元へと導く「共感と手放しの智慧」' },
+};
+
+const LP_DATA = {
+  1:  { past: '孤高の開拓者', unfinished: '孤独な戦いで他者と繋がれなかった', theme: '真の自立と共生' },
+  2:  { past: '縁の下の調停者', unfinished: '自分の意志を形にできなかった', theme: '調和と結び' },
+  3:  { past: '自由な表現者', unfinished: '純粋な喜びを表現しきれなかった', theme: '創造性の解放' },
+  4:  { past: '不屈の職人', unfinished: '心のゆとりや自由を味わえなかった', theme: '安心と具現化' },
+  5:  { past: '風まかせの旅人', unfinished: '一つの場所に根を下ろせなかった', theme: '変革と自由' },
+  6:  { past: '調和と慈愛の守り人', unfinished: '広い世界への慈愛が欠けていた', theme: '無償の愛と美' },
+  7:  { past: '孤独な探求者', unfinished: '知恵を自分のものだけに留めた', theme: '知性の社会還元' },
+  8:  { past: '力ある支配者', unfinished: '真の分かち合いが得られなかった', theme: '豊かさの循環' },
+  9:  { past: '世界を渡る賢者', unfinished: '現実の世界を救いきれなかった', theme: '共感と手放し' },
+  11: { past: '時代の啓蒙者', unfinished: '天の声を地上の言葉にできなかった', theme: '直感の言語化' },
+  22: { past: '時代の設計者', unfinished: '大きな理想を現実化できなかった', theme: '理想の現実化' },
+  33: { past: '孤高のカリスマ', unfinished: '深すぎる愛が社会に届かなかった', theme: '人類愛の体現' },
+};
+
+// ===== 生成 =====
+
+async function generate() {
+  const dateVal = document.getElementById('birthdate').value;
+  const nameVal = document.getElementById('firstname').value.trim();
+  const errEl = document.getElementById('errorMsg');
+  errEl.style.display = 'none';
+
+  if (!dateVal) { showError('生年月日を入力してください'); return; }
+  if (!nameVal) { showError('ファーストネームを入力してください'); return; }
+  if (!/^[A-Za-z]+$/.test(nameVal)) { showError('ファーストネームはアルファベットで入力してください'); return; }
+
+  const [y, m, d] = dateVal.split('-').map(Number);
+
+  const lp = calcLP(y, m, d);
+  const mn = calcMN(m);
+  const cn = calcCN(d, m);
+  const bd = calcBD(d);
+  const fn = calcFN(nameVal);
+
+  // 表示
+  document.getElementById('numLP').textContent = lp;
+  document.getElementById('numMN').textContent = mn;
+  document.getElementById('numCN').textContent = cn;
+  document.getElementById('numBD').textContent = bd;
+  document.getElementById('numFN').textContent = fn;
+  document.getElementById('numbersSection').style.display = 'block';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('generateBtn').disabled = true;
+
+  const lpData  = LP_DATA[lp]  || LP_DATA[9];
+  const mnText  = MN_DATA[mn]  || MN_DATA[9];
+  const cnText  = CN_DATA[cn]  || CN_DATA[0];
+  const bdText  = BD_DATA[bd]  || BD_DATA[1];
+  const fnObj   = FN_DATA[fn]  || FN_DATA[1];
+  const sameLock = (bd === fn);
+
+  const prompt = `あなたは宿命数秘術の専門家として、以下の情報から「魂の設計図」を4章構成で生成してください。
+
+【算出された数字】
+- ライフパスナンバー（LP）: ${lp}
+- メッセージナンバー（MN）: ${mn}
+- チャレンジナンバー（CN）: ${cn}
+- バースデイナンバー（BD）: ${bd}
+- ファーストネームナンバー（FN）: ${fn}
+- 錠前と鍵が同じ: ${sameLock ? 'はい' : 'いいえ'}
+
+【各数字の意味】
+- MN（前世の土台）: ${mnText}
+- CN（魂の宿題）: ${cnText}
+- BD（錠前・表の性格）: ${bdText}
+- FN（鍵・今世の武器）: ${fnObj.desc}
+- LP（前世の姿）: ${lpData.past}
+- LP（果たせなかったこと）: ${lpData.unfinished}
+- LP（今世のテーマ）: ${lpData.theme}
+
+【出力形式】
+以下の4章を日本語で生成してください。各章は3〜5文の自然な文章にしてください。テンプレートをそのまま使うのではなく、数字の意味を深く汲み取り、その人だけの物語として肉付けしてください。
+
+第1章タイトル：前世の記憶
+第2章タイトル：今世の初期設定
+第3章タイトル：運命を動かす鍵
+${sameLock ? '（錠前と鍵の数字が同じであることに言及し、外圧による変化の宿命について触れること）' : ''}
+第4章タイトル：魂のゴール
+
+出力はJSON形式で以下の構造にしてください（他の文字は一切含めないこと）:
+{"chapters":[{"title":"前世の記憶","body":"..."},{"title":"今世の初期設定","body":"..."},{"title":"運命を動かす鍵","body":"..."},{"title":"魂のゴール","body":"..."}]}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const raw = data.content?.map(i => i.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+
+    let chapters = [];
+
+    // まず通常のJSONパースを試みる
+    try {
+      const parsed = JSON.parse(clean);
+      chapters = parsed.chapters;
+    } catch(jsonErr) {
+      // 失敗した場合、正規表現で各章を個別に抽出するフォールバック
+      const titleMatches = [...clean.matchAll(/"title"\s*:\s*"([^"]+)"/g)];
+      const bodyMatches  = [...clean.matchAll(/"body"\s*:\s*"([\s\S]*?)(?:"\s*}|\s*$)/g)];
+
+      if (titleMatches.length > 0) {
+        chapters = titleMatches.map((tm, idx) => ({
+          title: tm[1],
+          body: bodyMatches[idx] ? bodyMatches[idx][1].replace(/\\n/g, '\n') : ''
+        }));
+      } else {
+        throw new Error('レスポンスの解析に失敗しました: ' + jsonErr.message);
+      }
+    }
+
+    if (!chapters || chapters.length === 0) {
+      throw new Error('章の生成に失敗しました。もう一度お試しください。');
+    }
+
+    const chaptersEl = document.getElementById('chapters');
+    chaptersEl.innerHTML = '';
+    chapters.forEach((ch, i) => {
+      const body = (ch.body || '').replace(/\\n/g, '\n').replace(/\n/g, '<br>');
+      chaptersEl.innerHTML += `
+        <div class="chapter">
+          <div class="chapter-header">
+            <span class="chapter-num">第${i+1}章</span>
+            <span class="chapter-title">${ch.title}</span>
+          </div>
+          <div class="chapter-body">${body}</div>
+        </div>`;
+    });
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('resultSection').style.display = 'block';
+    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    showError('生成中にエラーが発生しました。もう一度お試しください。（' + e.message + '）');
+    console.error(e);
+  }
+
+  document.getElementById('generateBtn').disabled = false;
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function copyResult() {
+  const chapters = document.querySelectorAll('.chapter');
+  let text = '🌌 魂の設計図\n\n';
+  chapters.forEach((ch, i) => {
+    const title = ch.querySelector('.chapter-title').textContent;
+    const body = ch.querySelector('.chapter-body').innerText;
+    text += `【第${i+1}章：${title}】\n${body}\n\n`;
+  });
+
+  const btn = document.querySelector('.copy-btn');
+
+  const onSuccess = () => {
+    btn.textContent = 'コピーしました ✓';
+    setTimeout(() => btn.textContent = 'テキストをコピーする', 2000);
+  };
+
+  const onFail = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand('copy');
+      onSuccess();
+    } catch(e) {
+      btn.textContent = 'コピーに失敗しました';
+      setTimeout(() => btn.textContent = 'テキストをコピーする', 2000);
+    }
+    document.body.removeChild(ta);
+  };
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(onFail);
+  } else {
+    onFail();
+  }
+}
+</script>
+</body>
+</html>
